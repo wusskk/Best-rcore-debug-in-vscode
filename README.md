@@ -45,3 +45,9 @@
 * [ ] ch6(todo)
 * [ ] ch7(todo)
 * [ ] ch8(todo)
+
+## 注意事项
+1. 为了方便调试，所有文件编译均采用debug模式，若需要采用release模式调试，请将所有需要修改的地方改为release（主要为cargo命令和target文件路径）
+2. 目前还不支持调试时跳转到.S文件的汇编代码
+3. 有问题可以微信群里问，或者提issue
+4. 欢迎所有人对该项目进行优化（issue/pull request）
