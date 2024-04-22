@@ -17,7 +17,7 @@ else :
 for app in apps:
     app = app[: app.find(".")]
     os.system(
-        "cargo rustc -v --bin %s %s -- -Clink-args=-Ttext=%x"
+        "cargo rustc --bin %s %s -- -Clink-args=-Ttext=%x"
         % (app, mode_arg, base_address + step * app_id)
     )
     print(
