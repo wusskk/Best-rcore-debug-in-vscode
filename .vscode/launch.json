@@ -15,19 +15,9 @@
             "preLaunchTask": "rcore-build",
             "setupCommands": [
                 {
-                    "description": "load user app symbol file",
-                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_sleep.dbg",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "load user app symbol file",
-                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_sleep1.dbg",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "load user app symbol file",
-                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_taskinfo.dbg",
-                    "ignoreFailures": true
+                    "description": "load user app symbol files",
+                    "text": "source ${workspaceFolder}/user/build/dbg/commands.gdb",
+                    "ignoreFailures": false
                 },
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -1,10 +1,11 @@
 use std::io::{Result, Write};
-use std::fs::{File, read_dir};
+use std::fs::{File, read_dir, write};
 
 fn main() {
     println!("cargo:rerun-if-changed=../user/src/");
     println!("cargo:rerun-if-changed={}", TARGET_PATH);
     insert_app_data().unwrap();
+    load_app_dbg();
 }
 
 static TARGET_PATH: &str = "../user/build/bin/";
@@ -21,8 +22,6 @@ fn insert_app_data() -> Result<()> {
         })
         .collect();
     apps.sort();
-    
-    println!("apps: {:?}", apps);
 
     writeln!(f, r#"
     .align 3
@@ -55,4 +54,18 @@ app_{0}_start:
 app_{0}_end:"#, idx, app, TARGET_PATH)?;
     }
     Ok(())
+}
+
+fn load_app_dbg() {
+    let paths = read_dir("../user/build/dbg").unwrap();
+    let mut commands = String::new();
+
+    for path in paths {
+        let path = path.unwrap().path();
+        if path.extension().unwrap() == "dbg" {
+            commands += &format!("add-symbol-file {}\n", path.canonicalize().unwrap().display());
+        }
+    }
+
+    write("../user/build/dbg/commands.gdb", commands).unwrap();
 }
