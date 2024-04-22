@@ -46,8 +46,8 @@ user_build: check_env clean randomize
 	cd ../user && CHAPTER=3 python3 build.py
 # copy user binaries and get debug info(symbol file)
 	$(foreach bin, $(BINS), \
-		$(OBJCOPY) --strip-all $(bin) -O binary $(BUILD_DIR)/bin/$(notdir $(bin));)
-# $(OBJCOPY) --only-keep-debug $(bin) $(BUILD_DIR)/dbg/$(notdir $(bin)).dbg;)
+		$(OBJCOPY) --strip-all $(bin) -O binary $(BUILD_DIR)/bin/$(notdir $(bin)); \
+		$(OBJCOPY) --only-keep-debug $(bin) $(BUILD_DIR)/dbg/$(notdir $(bin)).dbg;)	
 
 kernel: user_build
 	cargo build
