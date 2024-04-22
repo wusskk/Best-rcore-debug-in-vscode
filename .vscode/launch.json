@@ -1,0 +1,40 @@
+// xv6-riscv/.vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rcore-debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/os/target/riscv64gc-unknown-none-elf/debug/os",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/os",
+            "miDebuggerServerAddress": "127.0.0.1:15000",
+            "miDebuggerPath": "riscv64-unknown-elf-gdb",
+            "MIMode": "gdb",
+            "preLaunchTask": "rcore-build",
+            "setupCommands": [
+                {
+                    "description": "load user app symbol file",
+                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_sleep.dbg",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "load user app symbol file",
+                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_sleep1.dbg",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "load user app symbol file",
+                    "text": "add-symbol-file ${workspaceFolder}/user/build/dbg/ch3_taskinfo.dbg",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

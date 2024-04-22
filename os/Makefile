@@ -1,83 +1,86 @@
-# Building
+# ouput directory
 TARGET := riscv64gc-unknown-none-elf
-MODE := release
-KERNEL_ELF := target/$(TARGET)/$(MODE)/os
-KERNEL_BIN := $(KERNEL_ELF).bin
-DISASM_TMP := target/$(TARGET)/$(MODE)/asm
-OFFLINE :=
+MODE := debug
+TARGET_DIR := target/$(TARGET)/$(MODE)
 
-# BOARD
-BOARD := qemu
-SBI ?= rustsbi
-BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
+# where is sbi
+BOOTLOADER := ../bootloader/rustsbi-qemu.bin
 
-# Building mode argument
-ifeq ($(MODE), release)
-	MODE_ARG := --release
-endif
-
-# KERNEL ENTRY
-KERNEL_ENTRY_PA := 0x80200000
-
-# Binutils
-OBJDUMP := rust-objdump --arch-name=riscv64
+# user build
+BUILD_DIR := ../user/build
+APPS = $(wildcard ../user/src/bin/*.rs) 									# all user programs
+BINS = $(patsubst ../user/src/bin/%.rs, ../user/$(TARGET_DIR)/%, $(APPS)) 	# all user binaries
 OBJCOPY := rust-objcopy --binary-architecture=riscv64
 
-CHAPTER ?= $(shell git rev-parse --abbrev-ref HEAD | sed -E 's/ch([0-9])/\1/')
-TEST ?= $(CHAPTER)
-BASE ?= 1
+# randomize
+RAND := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 
-# Disassembly
-DISASM ?= -x
+# lab number
+LAB = 1
 
-build: env $(KERNEL_BIN)
+check_env:
+	@echo "Checking environment..."
+	@which rust-objcopy > /dev/null || (echo "Please install rust-objcopy" && exit 1)
+	@which qemu-system-riscv64 > /dev/null || (echo "Please install qemu-system-riscv64" && exit 1)
+	@which python3 > /dev/null || (echo "Please install python3" && exit 1)
+	@which riscv64-unknown-elf-gdb > /dev/null || (echo "Please install riscv64-unknown-elf-gdb" && exit 1)
+	@echo "Environment check passed."
 
-env:
-ifeq ($(OFFLINE),)
-	(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add $(TARGET)
-	cargo install cargo-binutils
-	rustup component add rust-src
-	rustup component add llvm-tools-preview
-endif
+user_clean:
+	cd ../user && cargo clean
+	rm -rf $(BUILD_DIR)
 
-$(KERNEL_BIN): kernel
-	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
+clean: user_clean
+	cargo clean
 
-kernel:
-	@make -C ../user build TEST=$(TEST) CHAPTER=$(CHAPTER) BASE=$(BASE)
-	@echo Platform: $(BOARD)
-	@cargo build $(MODE_ARG)
+randomize:
+	find ../user/src/bin -name "*.rs" | xargs -I {} sh -c 'sed -i.bak 's/OK/OK$(RAND)/g' {} && rm -rf {}.bak'
+	find ../user/src/bin -name "*.rs" | xargs -I {} sh -c 'sed -i.bak 's/passed/passed$(RAND)/g' {} && rm -rf {}.bak'
+	find ../check -name "*.py" | xargs -I {} sh -c 'sed -i.bak 's/OK/OK$(RAND)/g' {} && rm -rf {}.bak'
+	find ../check -name "*.py" | xargs -I {} sh -c 'sed -i.bak 's/passed/passed$(RAND)/g' {} && rm -rf {}.bak'
 
-clean:
-	@cargo clean
+user_build: check_env clean randomize
+	mkdir -p $(BUILD_DIR)/bin/
+	mkdir -p $(BUILD_DIR)/dbg/
+# build user programs
+	cd ../user && CHAPTER=3 python3 build.py
+# copy user binaries and get debug info(symbol file)
+	$(foreach bin, $(BINS), \
+		$(OBJCOPY) --strip-all $(bin) -O binary $(BUILD_DIR)/bin/$(notdir $(bin));)
+# $(OBJCOPY) --only-keep-debug $(bin) $(BUILD_DIR)/dbg/$(notdir $(bin)).dbg;)
 
-disasm: kernel
-	@$(OBJDUMP) $(DISASM) $(KERNEL_ELF) | less
+kernel: user_build
+	cargo build
 
-disasm-vim: kernel
-	@$(OBJDUMP) $(DISASM) $(KERNEL_ELF) > $(DISASM_TMP)
-	@vim $(DISASM_TMP)
-	@rm $(DISASM_TMP)
-
-run: run-inner
-
-run-inner: build
-	@qemu-system-riscv64 \
+run: kernel
+	timeout --foreground 30s qemu-system-riscv64 \
 		-machine virt \
 		-nographic \
 		-bios $(BOOTLOADER) \
-		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA)
+		-kernel $(TARGET_DIR)/os
 
-debug: build
-	@tmux new-session -d \
-		"qemu-system-riscv64 -machine virt -nographic -bios $(BOOTLOADER) -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) -s -S" && \
-		tmux split-window -h "riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
-		tmux -2 attach-session -d
+test: user_build
+	make run | tee stdout-ch3
+# check the output
+	python3 ../check/ch3.py < stdout-ch3
+# check the report(you can comment it out if you don't want to check the report)
+	@for i in $(shell seq $(LAB)); do \
+		if ! [ -f ../reports/lab$$i.pdf -o -f ../reports/lab$$i.md ]; then \
+			echo "Report for lab$$i needed. Add your report to reports/lab$$i.pdf or reports/lab$$i.md" ; \
+			exit 1 ; \
+		else \
+			echo "Report for lab$$i found." ; \
+		fi; \
+	done
 
-gdbserver: build
-	@qemu-system-riscv64 -machine virt -nographic -bios $(BOOTLOADER) -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) -s -S
 
-gdbclient:
-	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
+debug: kernel
+	echo ".*Now run 'gdb' in another window."
+	qemu-system-riscv64 \
+	-machine virt \
+	-nographic \
+	-bios $(BOOTLOADER) \
+	-kernel $(TARGET_DIR)/os \
+	-S -gdb tcp::15000
 
-.PHONY: build env kernel clean disasm disasm-vim run-inner gdbserver gdbclient
+.PHONY: kernel clean run test debug
