@@ -1,54 +1,47 @@
-# rCore-Tutorial-Code-2024S
+# All For Test
 
-### Code
-- [Soure Code of labs for 2024S](https://github.com/LearningOS/rCore-Tutorial-Code-2024S)
-### Documents
+本仓库是为了方便进行rcore的调试，主要做了以下几点工作：
 
-- Concise Manual: [rCore-Tutorial-Guide-2024S](https://LearningOS.github.io/rCore-Tutorial-Guide-2024S/)
+1. 调整目录结构，取消ci-user目录，只保留user和os目录在同一层级下，user存放用户程序，os存放内核文件。
+2. 简化Makefile，将三个Makefile简化为一个存放在os目录下，并且简化编译逻辑，帮助大家更方便地理解编译流程。
+3. 针对vscode进行调试优化，实现开箱即用，并且实现内核和用户程序的同时调试，能够追踪代码从用户程序到内核代码。
 
-- Detail Book [rCore-Tutorial-Book-v3](https://rcore-os.github.io/rCore-Tutorial-Book-v3/)
+## How to use
 
+1. 如果使用vscode：
 
-### OS API docs of rCore Tutorial Code 2024S
-- [OS API docs of ch1](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch1/os/index.html)
-  AND [OS API docs of ch2](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch2/os/index.html)
-- [OS API docs of ch3](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch3/os/index.html)
-  AND [OS API docs of ch4](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch4/os/index.html)
-- [OS API docs of ch5](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch5/os/index.html)
-  AND [OS API docs of ch6](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch6/os/index.html)
-- [OS API docs of ch7](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch7/os/index.html)
-  AND [OS API docs of ch8](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch8/os/index.html)
-- [OS API docs of ch9](https://learningos.github.io/rCore-Tutorial-Code-2024S/ch9/os/index.html)
+   ```bash
+   git clone https://github.com/wusskk/rCore-Tutorial-Code-2024S.git
+   git checkout ch3 #ch3为章节编号，可根据需要修改
+   # 现在只需要在vscode中按F5启动调试
+   ```
+2. 如果使用命令行：
 
-### Related Resources
-- [Learning Resource](https://github.com/LearningOS/rust-based-os-comp2022/blob/main/relatedinfo.md)
+   ```bash
+   git clone https://github.com/wusskk/rCore-Tutorial-Code-2024S.git
+   git checkout ch3 #ch3为章节编号，可根据需要修改
+   cd os
+   make debug 
+   # 另开一个新终端（下方载入符号文件部分仅适用于ch3）
+   riscv64-unknown-elf-gdb -ex 'file os/target/riscv64gc-unknown-none-elf/debug/os' \
+   -ex 'target remote localhost:15000' \
+   -ex 'add-symbol-file user/build/dbg/ch3_sleep.dbg' \
+   -ex 'add-symbol-file user/build/dbg/ch3_sleep1.dbg' \
+   -ex 'add-symbol-file user/build/dbg/ch3_task.dbg'
+   # 然后就能进行调试，注意增加的符号文件仅适用于ch3，其他分支需要载入的符号文件不同
+   ```
+3. 进行grade测试：
 
+   ```bash
+   cd os
+   make test
+   ```
 
-### Build & Run
+## 修改进展
 
-```bash
-# setup build&run environment first
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Code-2024S.git
-$ cd rCore-Tutorial-Code-2024S
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Test-2024S.git user
-$ git checkout ch$ID
-$ cd os
-# run OS in ch$ID
-$ make run
-```
-Notice: $ID is from [1-9]
-
-### Grading
-
-```bash
-# setup build&run environment first
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Code-2024S.git
-$ cd rCore-Tutorial-Code-2024S
-$ rm -rf ci-user
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Checker-2024S.git ci-user
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Test-2024S.git ci-user/user
-$ git checkout ch$ID
-# check&grade OS in ch$ID with more tests
-$ cd ci-user && make test CHAPTER=$ID
-```
-Notice: $ID is from [3,4,5,6,8]
+* [X] ch3
+* [ ] ch4(todo)
+* [ ] ch5(todo)
+* [ ] ch6(todo)
+* [ ] ch7(todo)
+* [ ] ch8(todo)
