@@ -39,7 +39,7 @@
 
 * [X] ch3
 * [X] ch4
-* [ ] ch5(todo)
+* [X] ch5
 * [ ] ch6(todo)
 * [ ] ch7(todo)
 * [ ] ch8(todo)
