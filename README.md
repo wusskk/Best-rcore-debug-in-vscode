@@ -25,10 +25,8 @@
    # 另开一个新终端（下方载入符号文件部分仅适用于ch3）
    riscv64-unknown-elf-gdb -ex 'file os/target/riscv64gc-unknown-none-elf/debug/os' \
    -ex 'target remote localhost:15000' \
-   -ex 'add-symbol-file user/build/dbg/ch3_sleep.dbg' \
-   -ex 'add-symbol-file user/build/dbg/ch3_sleep1.dbg' \
-   -ex 'add-symbol-file user/build/dbg/ch3_task.dbg'
-   # 然后就能进行调试，注意增加的符号文件仅适用于ch3，其他分支需要载入的符号文件不同
+   -ex 'add-symbol-file user/build/dbg/commands.dbg'
+   # 然后就能进行调试
    ```
 3. 进行grade测试：
 
@@ -40,14 +38,16 @@
 ## 修改进展
 
 * [X] ch3
-* [ ] ch4(todo)
+* [X] ch4
 * [ ] ch5(todo)
 * [ ] ch6(todo)
 * [ ] ch7(todo)
 * [ ] ch8(todo)
 
 ## 注意事项
+
 1. 为了方便调试，所有文件编译均采用debug模式，若需要采用release模式调试，请将所有需要修改的地方改为release（主要为cargo命令和target文件路径）
 2. 目前还不支持调试时跳转到.S文件的汇编代码
-3. 有问题可以微信群里问，或者提issue
-4. 欢迎所有人对该项目进行优化（issue/pull request）
+3. 有可能出现在vscode的集成终端中能够执行的命令，启动调试时输出：命令not found。原因是vscode本身的bug，暂无确切的解决方案，可以考虑使用绝对路径，并且注释掉Makefile中的环境检查语句。vscode的bug [issue链接](https://github.com/microsoft/vscode/issues/187955 "#187955")
+4. 有问题可以微信群里问，或者提issue
+5. 欢迎所有人对该项目进行优化（issue/pull request）
