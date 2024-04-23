@@ -46,7 +46,7 @@ user_build: check_env clean randomize
 	cd ../user && CHAPTER=3 python3 build.py
 # copy user binaries and get debug info(symbol file)
 	$(foreach bin, $(BINS), \
-		$(OBJCOPY) --strip-all $(bin) -O binary $(BUILD_DIR)/bin/$(notdir $(bin)); \
+		$(OBJCOPY) --strip-all $(bin) -O binary $(BUILD_DIR)/bin/$(notdir $(bin)).bin; \
 		$(OBJCOPY) --only-keep-debug $(bin) $(BUILD_DIR)/dbg/$(notdir $(bin)).dbg;)	
 
 kernel: user_build
@@ -75,7 +75,7 @@ test: user_build
 
 
 debug: kernel
-	echo ".*Now run 'gdb' in another window."
+	@echo ".*Now run 'gdb' in another window."
 	qemu-system-riscv64 \
 	-machine virt \
 	-nographic \
