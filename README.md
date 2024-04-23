@@ -34,6 +34,23 @@
    cd os
    make test
    ```
+4. 目录结构梳理：
+仅列举重要文件，省略部分文件
+   - .vscode/
+      - tasks.json: 程序构建命令，是luanch.json的前置任务
+      - luanch.json: 启动gdb，进行远程调试
+   - check/
+      - base.py
+      - ch*.py grading的check脚本，通过读取程序输出进行判断
+   - os/ 内核目录
+      - src/ 源文件
+      - Makefile 构建内核和用户程序
+      - build.rs 构建内核的前置步骤，包括生成link_app.S和commands.gdb（为gdb加载用户程序的符号文件）
+   - user/ 用户程序目录
+   - src/
+      - bin/
+         - ch*.rs 用户程序的源文件
+      - lib.rs 通过ecall指令封装系统调用
 
 ## 修改进展
 
