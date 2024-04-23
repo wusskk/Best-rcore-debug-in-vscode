@@ -1,0 +1,23 @@
+import base
+from ch4b import NOT_EXPECTED_4b
+from ch4 import EXPECTED_4
+
+EXPECTED_5 = EXPECTED_4 + [
+    # ch5_spawn0
+    "Test spawn0 OK10593845765509622145578366413242653332365631741!",
+
+    # ch5_spawn1
+    "Test wait OK10593845765509622145578366413242653332365631741!",
+    "Test waitpid OK10593845765509622145578366413242653332365631741!",
+
+    # ch5_setprio
+    "Test set_priority OK10593845765509622145578366413242653332365631741!",
+]
+
+EXPECTED_5 = list(set(EXPECTED_5) - set([
+    "string from task info test",
+    "Test task info OK10593845765509622145578366413242653332365631741!",
+]))
+
+if __name__ == "__main__":
+    base.test(EXPECTED_5, NOT_EXPECTED_4b)
