@@ -33,6 +33,7 @@ user_clean:
 
 clean: user_clean
 	cargo clean
+	rm -f src/link_app.S
 
 randomize:
 	find ../user/src/bin -name "*.rs" | xargs -I {} sh -c 'sed -i.bak 's/OK/OK$(RAND)/g' {} && rm -rf {}.bak'
