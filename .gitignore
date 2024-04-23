@@ -1,12 +1,10 @@
 .*/*
 !.github/*
-!.vscode/settings.json
+!.vscode/*
 .idea
-Cargo.lock
 target
 os/src/link_app.S
 os/last-*
-os/Cargo.lock
 os/.gdb_history
 easy-fs/Cargo.lock
 easy-fs/target/*
@@ -15,5 +13,4 @@ easy-fs-fuse/target/*
 tools/
 pushall.sh
 *.bak
-
-user/*
+user/build/*
